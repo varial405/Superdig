@@ -1,0 +1,66 @@
+#!/bin/bash
+domain=$1
+
+### A record Check ###
+	if [ -z "`dig +short $domain`" ];
+    then
+	echo '--- No A record Found ---';
+    else
+	echo '--- A Record ---';
+	echo `dig +short $domain`;
+fi
+
+echo
+### NS record check ###
+	if [ -z "`whois $domain | grep -i "name server"`" ];
+    then
+	echo '--- No NS Record Found ---';  
+    else
+	echo '--- NS Record ---';
+	whois $domain | grep -i "name server" | awk '{print $1 $2 $3 $4}';
+fi
+
+echo
+### MX Record Check ###
+	if [ -z "`dig mx +short $domain`" ];
+     then
+	echo '--- No MX Record Found ---';
+     else
+	echo '--- Mx Record ---';
+ 	dig mx +short $domain;
+fi
+
+echo
+### SPF/TXT record check ###
+# This currently brings up all txt records available instead of jus the spf.  So it make sit cluttered with the globalsign verification txt record.
+	if [ -z "`dig txt +short $domain`" ];
+    then
+	echo '--- No TXT Record Found ---';
+    else
+	echo '--- TXT Record ---';
+	echo `dig txt +short $domain`;
+fi
+
+echo
+### DKIM Record Check ###
+# This currently only brings up default._domainkey.  Currently working on mking it search for other DKIM record formats.
+	if [ -z "`dig txt +short default._domainkey.$domain`" ];
+    then
+	echo "--- No DKIM Record Found ---";
+    else
+	echo "--- DKIM Record ---";
+	echo `dig txt +short default._domainkey.$domain`;
+fi
+
+echo
+### DMARC Record Check ###
+#I haven't ran into many scenarios where I needed to see if they had this, but it could still be useful to see if it is set up
+	if [ -z "`dig txt +short _dmarc.$domain`" ];
+    then
+	echo "--- No DMARC Record Found ---";
+    else
+	echo "--- DMARC Record ---";
+	echo `dig txt +short _dmarc.$domain`;
+fi
+
+echo
